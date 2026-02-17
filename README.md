@@ -2,19 +2,35 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Run and deploy your AI Studio app
+# DeppeSearch - Deep Reasoning AI Research Tool
 
-This contains everything you need to run your app locally.
+A powerful deep research tool with support for multiple AI providers including Gemini, MiniMax M2.5, and Ollama Llama 3.2.
 
-View your app in AI Studio: https://ai.studio/apps/drive/1wpYoWKfjUFiEjhSqfu-d7QqKRXe2t7_W
+## Features
+
+- 🤖 **Multiple AI Providers**: Choose between Google Gemini, MiniMax M2.5, or Ollama Llama 3.2
+- 🔍 **Web Search Integration**: Automated research with Tavily search
+- 📊 **Export Reports**: Export your research as Markdown or Text files
+- 💾 **Persistent Settings**: Your API keys and preferences are saved locally
+- 🎯 **Deep Reasoning**: Multi-step research with analysis and synthesis
 
 ## Run Locally
 
-**Prerequisites:**  Node.js
-
+**Prerequisites:** Node.js
 
 1. Install dependencies:
    `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
+2. Run the app:
    `npm run dev`
+3. Open http://localhost:5173 in your browser
+
+## Configuration
+
+Click the settings button (top right) to configure:
+- **Gemini**: Enter your Google AI API key
+- **MiniMax**: Enter MiniMax API key and Group ID
+- **Ollama**: Enter Tavily search API key (Ollama runs locally)
+
+## View Original AI Studio App
+
+Original app: https://ai.studio.apps/drive/1wpYoWKfjUFiEjhSqfu-d7QqKRXe2t7_W
