@@ -1,0 +1,7 @@
+{
+  "name": "InsightFlow Deep Researcher",
+  "description": "An agentic AI assistant that performs multi-step deep analysis using Google Search grounding to provide comprehensive insights on any topic.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
