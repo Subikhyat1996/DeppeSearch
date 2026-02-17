@@ -42,10 +42,30 @@ export class MiniMaxService implements IAIService {
   private search: SearchService;
 
   constructor() {
-    this.apiKey = process.env.MINIMAX_API_KEY || "";
-    this.groupId = process.env.MINIMAX_GROUP_ID || "";
-    this.model = process.env.MINIMAX_MODEL || "MiniMax-M2.5";
+    // Load from localStorage
+    const config = this.getConfig();
+    this.apiKey = config.apiKey || "";
+    this.groupId = config.groupId || "";
+    this.model = config.model || "MiniMax-M2.5";
     this.search = new SearchService();
+  }
+
+  private getConfig(): { apiKey?: string; groupId?: string; model?: string; searchApiKey?: string } {
+    try {
+      const config = localStorage.getItem('insightflow_provider_config');
+      if (config) {
+        const parsed = JSON.parse(config);
+        return {
+          apiKey: parsed.apiKey || '',
+          groupId: parsed.groupId || '',
+          model: parsed.minimaxModel || 'MiniMax-M2.5',
+          searchApiKey: parsed.searchApiKey || ''
+        };
+      }
+    } catch (e) {
+      console.error('Error loading MiniMax config:', e);
+    }
+    return {};
   }
 
   getProviderName(): string {
@@ -56,14 +76,20 @@ export class MiniMaxService implements IAIService {
    * Helper method to call MiniMax API.
    */
   private async callAPI(messages: MiniMaxMessage[], temperature: number = 0.7): Promise<string> {
-    if (!this.apiKey || !this.groupId) {
-      throw new Error("MiniMax API key or Group ID not configured");
+    // Get fresh config for each request
+    const config = this.getConfig();
+    const apiKey = config.apiKey;
+    const groupId = config.groupId;
+    const model = config.model || 'MiniMax-M2.5';
+    
+    if (!apiKey || !groupId) {
+      throw new Error("MiniMax API key or Group ID not configured. Please configure in settings.");
     }
 
-    const url = `https://api.minimax.chat/v1/text/chatcompletion_v2?GroupId=${this.groupId}`;
+    const url = `https://api.minimax.chat/v1/text/chatcompletion_v2?GroupId=${groupId}`;
 
     const request: MiniMaxRequest = {
-      model: this.model,
+      model,
       messages,
       temperature,
       max_tokens: 4096,
@@ -74,7 +100,7 @@ export class MiniMaxService implements IAIService {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${this.apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify(request),
     });
@@ -134,8 +160,11 @@ Do not include any other text or formatting.`
    * Executes a research step using Tavily search + LLM analysis.
    */
   async executeResearchStep(query: string): Promise<{ result: string; sources: GroundingChunk[] }> {
+    // Get config from localStorage
+    const config = this.getConfig();
+    
     // First, perform web search
-    const { results, sources } = await this.search.search(query, 5, process.env.TAVILY_API_KEY || undefined);
+    const { results, sources } = await this.search.search(query, 5, config.searchApiKey || undefined);
 
     // If no results, return early
     if (results.length === 0) {

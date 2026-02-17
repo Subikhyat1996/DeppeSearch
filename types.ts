@@ -36,7 +36,9 @@ export interface ProviderConfig {
   provider: ProviderType;
   apiKey: string;
   groupId?: string; // For MiniMax
-  model?: string;   // For Ollama
+  model?: string;   // For Ollama base URL
+  ollamaModel?: string; // For Ollama model selection
+  minimaxModel?: string; // For MiniMax model selection
   searchApiKey?: string; // For Tavily
   isValid: boolean;
 }

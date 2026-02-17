@@ -29,6 +29,23 @@ const PROVIDERS: { id: ProviderType; name: string; description: string; needsSea
   },
 ];
 
+// Available models for each provider
+const OLLAMA_MODELS = [
+  { value: 'llama3.2', label: 'Llama 3.2 (Recommended)' },
+  { value: 'llama3.1', label: 'Llama 3.1' },
+  { value: 'llama3', label: 'Llama 3' },
+  { value: 'mistral', label: 'Mistral' },
+  { value: 'mixtral', label: 'Mixtral' },
+  { value: 'phi3', label: 'Phi-3' },
+  { value: 'qwen2.5', label: 'Qwen 2.5' },
+];
+
+const MINIMAX_MODELS = [
+  { value: 'MiniMax-M2.5', label: 'M2.5 (Default)' },
+  { value: 'abab6.5s-chat', label: 'abab6.5s-chat' },
+  { value: 'abab6.5g-chat', label: 'abab6.5g-chat' },
+];
+
 export const ProviderSettings: React.FC<ProviderSettingsProps> = ({
   config,
   onConfigChange,
@@ -137,6 +154,20 @@ export const ProviderSettings: React.FC<ProviderSettingsProps> = ({
                   className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-blue-500 focus:outline-none"
                 />
               </div>
+              <div className="mb-3">
+                <label className="block text-xs font-medium text-slate-400 mb-2">
+                  MiniMax Model
+                </label>
+                <select
+                  value={config.minimaxModel || 'MiniMax-M2.5'}
+                  onChange={(e) => onConfigChange({ ...config, minimaxModel: e.target.value, isValid: false })}
+                  className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none"
+                >
+                  {MINIMAX_MODELS.map((m) => (
+                    <option key={m.value} value={m.value}>{m.label}</option>
+                  ))}
+                </select>
+              </div>
               <div className="mb-4">
                 <label className="block text-xs font-medium text-slate-400 mb-2">
                   Tavily Search API Key
@@ -166,6 +197,21 @@ export const ProviderSettings: React.FC<ProviderSettingsProps> = ({
                   placeholder="http://localhost:11434"
                   className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-blue-500 focus:outline-none"
                 />
+              </div>
+              <div className="mb-3">
+                <label className="block text-xs font-medium text-slate-400 mb-2">
+                  Ollama Model
+                </label>
+                <select
+                  value={config.ollamaModel || 'llama3.2'}
+                  onChange={(e) => onConfigChange({ ...config, ollamaModel: e.target.value, isValid: false })}
+                  className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none"
+                >
+                  {OLLAMA_MODELS.map((m) => (
+                    <option key={m.value} value={m.value}>{m.label}</option>
+                  ))}
+                </select>
+                <p className="text-xs text-slate-500 mt-1">Make sure the model is downloaded in Ollama</p>
               </div>
               <div className="mb-4">
                 <label className="block text-xs font-medium text-slate-400 mb-2">

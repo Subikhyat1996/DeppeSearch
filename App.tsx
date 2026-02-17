@@ -57,8 +57,8 @@ const App: React.FC = () => {
   const getProviderDisplayName = () => {
     switch (providerConfig.provider) {
       case 'gemini': return 'Gemini 3 Pro';
-      case 'minimax': return 'MiniMax M2.5';
-      case 'ollama': return `Ollama ${providerConfig.model || 'llama3.2'}`;
+      case 'minimax': return providerConfig.minimaxModel ? `MiniMax ${providerConfig.minimaxModel}` : 'MiniMax M2.5';
+      case 'ollama': return `Ollama ${providerConfig.ollamaModel || 'llama3.2'}`;
       default: return 'Unknown';
     }
   };
@@ -81,50 +81,22 @@ const App: React.FC = () => {
 
         case 'minimax':
           if (providerConfig.apiKey && providerConfig.groupId) {
-            // Test MiniMax - temporarily set env vars
-            const originalApiKey = process.env.MINIMAX_API_KEY;
-            const originalGroupId = process.env.MINIMAX_GROUP_ID;
-            const originalSearchKey = process.env.TAVILY_API_KEY;
-
-            process.env.MINIMAX_API_KEY = providerConfig.apiKey;
-            process.env.MINIMAX_GROUP_ID = providerConfig.groupId;
-            process.env.TAVILY_API_KEY = providerConfig.searchApiKey || '';
-
             try {
               await minimax.generateResearchPlan("test");
               isValid = true;
             } catch (e) {
               console.error("MiniMax validation failed:", e);
             }
-
-            // Restore original values if needed
-            if (originalApiKey) process.env.MINIMAX_API_KEY = originalApiKey;
-            if (originalGroupId) process.env.MINIMAX_GROUP_ID = originalGroupId;
-            if (originalSearchKey) process.env.TAVILY_API_KEY = originalSearchKey;
           }
           break;
 
         case 'ollama':
-          // Test Ollama - temporarily set env vars
-          const originalOllamaUrl = process.env.OLLAMA_BASE_URL;
-          const originalOllamaModel = process.env.OLLAMA_MODEL;
-          const originalSearchKey = process.env.TAVILY_API_KEY;
-
-          process.env.OLLAMA_BASE_URL = providerConfig.model || 'http://localhost:11434';
-          process.env.OLLAMA_MODEL = 'llama3.2';
-          process.env.TAVILY_API_KEY = providerConfig.searchApiKey || '';
-
           try {
             await ollama.generateResearchPlan("test");
             isValid = true;
           } catch (e) {
             console.error("Ollama validation failed:", e);
           }
-
-          // Restore original values
-          if (originalOllamaUrl) process.env.OLLAMA_BASE_URL = originalOllamaUrl;
-          if (originalOllamaModel) process.env.OLLAMA_MODEL = originalOllamaModel;
-          if (originalSearchKey) process.env.TAVILY_API_KEY = originalSearchKey;
           break;
       }
     } catch (e) {
@@ -142,15 +114,9 @@ const App: React.FC = () => {
           setAiServiceInstance(gemini);
           break;
         case 'minimax':
-          process.env.MINIMAX_API_KEY = providerConfig.apiKey;
-          process.env.MINIMAX_GROUP_ID = providerConfig.groupId;
-          process.env.TAVILY_API_KEY = providerConfig.searchApiKey || '';
           setAiServiceInstance(minimax);
           break;
         case 'ollama':
-          process.env.OLLAMA_BASE_URL = providerConfig.model || 'http://localhost:11434';
-          process.env.OLLAMA_MODEL = 'llama3.2';
-          process.env.TAVILY_API_KEY = providerConfig.searchApiKey || '';
           setAiServiceInstance(ollama);
           break;
       }

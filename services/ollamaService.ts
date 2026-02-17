@@ -25,9 +25,27 @@ export class OllamaService implements IAIService {
   private search: SearchService;
 
   constructor() {
-    this.baseUrl = process.env.OLLAMA_BASE_URL || "http://localhost:11434";
-    this.model = process.env.OLLAMA_MODEL || "llama3.2";
+    // Load from localStorage or use defaults
+    this.baseUrl = this.getConfig().baseUrl || "http://localhost:11434";
+    this.model = this.getConfig().model || "llama3.2";
     this.search = new SearchService();
+  }
+
+  private getConfig(): { baseUrl?: string; model?: string; searchApiKey?: string } {
+    try {
+      const config = localStorage.getItem('insightflow_provider_config');
+      if (config) {
+        const parsed = JSON.parse(config);
+        return {
+          baseUrl: parsed.model || 'http://localhost:11434', // 'model' field holds the base URL for Ollama
+          model: parsed.ollamaModel || 'llama3.2',
+          searchApiKey: parsed.searchApiKey || ''
+        };
+      }
+    } catch (e) {
+      console.error('Error loading Ollama config:', e);
+    }
+    return {};
   }
 
   getProviderName(): string {
@@ -38,10 +56,13 @@ export class OllamaService implements IAIService {
    * Helper method to call Ollama API.
    */
   private async generate(prompt: string, temperature: number = 0.7): Promise<string> {
-    const url = `${this.baseUrl}/api/generate`;
+    // Get fresh config for each request
+    const config = this.getConfig();
+    const url = `${config.baseUrl || 'http://localhost:11434'}/api/generate`;
+    const model = config.model || 'llama3.2';
 
     const request: OllamaRequest = {
-      model: this.model,
+      model,
       prompt,
       stream: false,
       temperature,
@@ -98,8 +119,11 @@ Query: "${userQuery}"`;
    * Executes a research step using Tavily search + LLM analysis.
    */
   async executeResearchStep(query: string): Promise<{ result: string; sources: GroundingChunk[] }> {
+    // Get config from localStorage
+    const config = this.getConfig();
+    
     // First, perform web search
-    const { results, sources } = await this.search.search(query, 5, process.env.TAVILY_API_KEY || undefined);
+    const { results, sources } = await this.search.search(query, 5, config.searchApiKey || undefined);
 
     // If no results, return early
     if (results.length === 0) {

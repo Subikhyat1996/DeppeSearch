@@ -3,10 +3,31 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { ResearchStep, GroundingChunk } from "../types";
 
 export class GeminiService {
-  private ai: GoogleGenAI;
+  private ai: GoogleGenAI | null = null;
+  private apiKey: string = '';
 
-  constructor() {
-    this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+  private getAI(): GoogleGenAI {
+    // Use user-provided API key from localStorage if available
+    if (!this.apiKey) {
+      try {
+        const config = localStorage.getItem('insightflow_provider_config');
+        if (config) {
+          const parsed = JSON.parse(config);
+          this.apiKey = parsed.apiKey || '';
+        }
+      } catch (e) {
+        console.error('Error loading config:', e);
+      }
+    }
+    
+    if (!this.apiKey) {
+      throw new Error('Please configure your Gemini API key in settings');
+    }
+    
+    if (!this.ai) {
+      this.ai = new GoogleGenAI({ apiKey: this.apiKey });
+    }
+    return this.ai;
   }
 
   getProviderName(): string {
@@ -17,7 +38,7 @@ export class GeminiService {
    * Generates a multi-step research plan for a complex query.
    */
   async generateResearchPlan(userQuery: string): Promise<ResearchStep[]> {
-    const response = await this.ai.models.generateContent({
+    const response = await this.getAI().models.generateContent({
       model: 'gemini-3-pro-preview',
       contents: `You are a research coordinator. Break down this query into 3-4 distinct research steps/sub-questions to perform a deep analysis: "${userQuery}". Return ONLY a JSON array of objects with a 'query' field.`,
       config: {
@@ -52,7 +73,7 @@ export class GeminiService {
    * Executes a single search step using Google Search grounding.
    */
   async executeResearchStep(query: string): Promise<{ result: string, sources: GroundingChunk[] }> {
-    const response = await this.ai.models.generateContent({
+    const response = await this.getAI().models.generateContent({
       model: 'gemini-3-pro-preview',
       contents: `Perform a detailed search and provide facts/data for: "${query}". Be concise but thorough.`,
       config: {
@@ -79,7 +100,7 @@ export class GeminiService {
   async synthesizeAnalysis(originalQuery: string, steps: ResearchStep[]): Promise<{ summary: string, deepDive: string }> {
     const researchData = steps.map(s => `Query: ${s.query}\nFindings: ${s.result}`).join("\n\n---\n\n");
     
-    const response = await this.ai.models.generateContent({
+    const response = await this.getAI().models.generateContent({
       model: 'gemini-3-pro-preview',
       contents: `Original Request: ${originalQuery}\n\nBased on these research findings:\n${researchData}\n\nProvide a comprehensive "Deep Analysis" in two parts: 1. A executive summary (JSON field: summary). 2. A detailed multi-section deep dive analysis in Markdown (JSON field: deepDive).`,
       config: {
