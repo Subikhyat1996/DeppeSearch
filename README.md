@@ -1,5 +1,5 @@
 
-# DeppeSearch - Deep Reasoning AI Research Tool
+# InsgightFlow - Deep Reasoning AI Research Tool
 
 A powerful deep research tool with support for multiple AI providers including Gemini, MiniMax M2.5, and Ollama Llama 3.2.
 
@@ -27,7 +27,3 @@ Click the settings button (top right) to configure:
 - **Gemini**: Enter your Google AI API key
 - **MiniMax**: Enter MiniMax API key and Group ID
 - **Ollama**: Enter Tavily search API key (Ollama runs locally)
-
-## View Original AI Studio App
-
-Original app: https://ai.studio.apps/drive/1wpYoWKfjUFiEjhSqfu-d7QqKRXe2t7_W

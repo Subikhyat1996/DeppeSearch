@@ -50,7 +50,7 @@ export const ProviderSettings: React.FC<ProviderSettingsProps> = ({
   };
 
   return (
-    <div className="fixed top-4 right-4 z-50">
+    <div className="fixed top-4 right-16 z-50">
       {/* Settings Toggle Button */}
       <button
         onClick={() => setShowSettings(!showSettings)}
